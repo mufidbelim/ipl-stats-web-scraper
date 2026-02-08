@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IPL Top Run Scorers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .metadata {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .filters {
+            margin: 20px 0;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .filter-btn:hover {
+            background: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .insight {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .legend {
+            background: gold;
+        }
+        .elite {
+            background: silver;
+        }
+        .good {
+            background: #cd7f32;
+            color: white;
+        }
+        .actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            flex: 1;
+            margin: 10px;
+            min-width: 200px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+            }
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏏 IPL Top Run Scorers</h1>
+        
+        <div class="metadata">
+            <p><strong>Season:</strong> {{ metadata.get('season', 'IPL Career Runs') }}</p>
+            <p><strong>Last Updated:</strong> {{ metadata.get('last_updated', 'Today') }}</p>
+            <p><strong>Total Players:</strong> {{ stats.total_players }}</p>
+        </div>
+        
+        {% if has_data %}
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value">{{ stats.total_players }}</div>
+                <div class="stat-label">Total Players</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ "{:,}".format(stats.total_runs) }}</div>
+                <div class="stat-label">Total Runs</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ stats.top_scorer }}</div>
+                <div class="stat-label">Top Scorer</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ "{:,}".format(stats.top_runs) }}</div>
+                <div class="stat-label">Highest Runs</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <strong>Show:</strong>
+            <a href="/" class="filter-btn">All Players</a>
+            <a href="/?top=20" class="filter-btn">Top 20</a>
+            <a href="/?top=10" class="filter-btn">Top 10</a>
+            <a href="/?top=5" class="filter-btn">Top 5</a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Runs</th>
+                    <th>Matches</th>
+                    <th>Average</th>
+                    <th>Strike Rate</th>
+                    <th>Insight</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ player.Player }}</td>
+                    <td>{{ "{:,}".format(player.Runs) }}</td>
+                    <td>{{ player.get('Matches', 'N/A') }}</td>
+                    <td>{{ player.get('Average', 'N/A') }}</td>
+                    <td>{{ player.get('Strike_Rate', 'N/A') }}</td>
+                    <td>
+                        <span class="insight {{ player.get('Insight', '').lower() }}">
+                            {{ player.get('Insight', 'N/A') }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="actions">
+            <a href="/download/csv" class="btn">📥 Download CSV</a>
+            <a href="/download/json" class="btn">📥 Download JSON</a>
+            <a href="/api/players" target="_blank" class="btn">🔧 View API</a>
+            <a href="/api/stats" target="_blank" class="btn">📊 View Stats API</a>
+        </div>
+        
+        {% else %}
+        <div style="text-align: center; padding: 50px;">
+            <h3>No Data Available</h3>
+            <p>Please run the scraper first:</p>
+            <p><code>python scraper.py</code></p>
+        </div>
+        {% endif %}
+        
+        <footer style="margin-top: 40px; text-align: center; color: #666;">
+            <p>Data Source: ESPNcricinfo | Created for IPL Statistics Project</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Auto-refresh every 60 seconds
+        setTimeout(() => location.reload(), 60000);
+    </script>
+</body>
+</html>
